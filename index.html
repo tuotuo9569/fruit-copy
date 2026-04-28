@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍎 水果文案產生器</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: #fff8f3;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #FF6B35, #f7c59f);
+      color: white;
+      text-align: center;
+      padding: 28px 20px 22px;
+    }
+    header h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: 1px; }
+    header p  { font-size: 0.9rem; margin-top: 6px; opacity: 0.9; }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+
+    /* ── section card ── */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #FF6B35;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── fruit input ── */
+    .fruit-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #ffd5be;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .fruit-input:focus { border-color: #FF6B35; }
+
+    /* ── chip buttons ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid #e0e0e0;
+      background: #f9f9f9;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip:hover { border-color: #FF6B35; color: #FF6B35; }
+    .chip.active {
+      background: #FF6B35;
+      color: white;
+      border-color: #FF6B35;
+    }
+
+    /* country chips special color */
+    .country-chip.active { background: #43A047; border-color: #43A047; }
+    .country-chip:hover  { border-color: #43A047; color: #43A047; }
+
+    /* category label */
+    .cat-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #888;
+      margin: 12px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cat-label:first-child { margin-top: 0; }
+
+    /* ── generate button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #FF6B35, #e8521e);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 4px 14px rgba(255,107,53,0.35);
+    }
+    .btn-generate:hover  { opacity: 0.92; }
+    .btn-generate:active { transform: scale(0.98); }
+
+    /* ── output ── */
+    #output-card { display: none; }
+    #output-card.show { display: block; }
+
+    #output-text {
+      width: 100%;
+      min-height: 180px;
+      padding: 14px;
+      border: 2px solid #ffd5be;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      color: #333;
+    }
+    #output-text:focus { border-color: #FF6B35; }
+
+    .btn-copy {
+      margin-top: 12px;
+      width: 100%;
+      padding: 13px;
+      background: #fff;
+      color: #FF6B35;
+      border: 2px solid #FF6B35;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy:hover { background: #FF6B35; color: white; }
+    .btn-copy.copied { background: #43A047; color: white; border-color: #43A047; }
+
+    /* ── tip ── */
+    .tip {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: -10px;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍎 水果文案產生器</h1>
+  <p>填資訊・選賣點・一鍵輸出團購文案</p>
+</header>
+
+<div class="container">
+
+  <!-- 水果名稱 -->
+  <div class="card">
+    <div class="card-title">🍑 水果名稱</div>
+    <input class="fruit-input" id="fruitName" type="text" placeholder="例：智利葡萄、日本草莓…" />
+  </div>
+
+  <!-- 產地 -->
+  <div class="card">
+    <div class="card-title">🌍 產地</div>
+    <div class="chips" id="originChips">
+      <span class="chip country-chip" data-val="🇺🇸 美國">🇺🇸 美國</span>
+      <span class="chip country-chip" data-val="🇨🇱 智利">🇨🇱 智利</span>
+      <span class="chip country-chip" data-val="🇰🇷 韓國">🇰🇷 韓國</span>
+      <span class="chip country-chip" data-val="🇯🇵 日本">🇯🇵 日本</span>
+      <span class="chip country-chip" data-val="🇳🇿 紐西蘭">🇳🇿 紐西蘭</span>
+      <span class="chip country-chip" data-val="🇦🇺 澳洲">🇦🇺 澳洲</span>
+      <span class="chip country-chip" data-val="🇹🇼 台灣">🇹🇼 台灣</span>
+      <span class="chip country-chip" data-val="🇲🇾 馬來西亞">🇲🇾 馬來西亞</span>
+      <span class="chip country-chip" data-val="🇿🇦 南非">🇿🇦 南非</span>
+      <span class="chip country-chip" data-val="🇵🇪 秘魯">🇵🇪 秘魯</span>
+    </div>
+  </div>
+
+  <!-- 賣點關鍵字 -->
+  <div class="card">
+    <div class="card-title">✨ 賣點關鍵字（可多選）</div>
+
+    <div class="cat-label">💥 直白衝擊</div>
+    <div class="chips">
+      <span class="chip" data-val="爆漿多汁">爆漿多汁</span>
+      <span class="chip" data-val="狂甜無比">狂甜無比</span>
+      <span class="chip" data-val="超猛甜度">超猛甜度</span>
+      <span class="chip" data-val="一口炸開">一口炸開</span>
+      <span class="chip" data-val="甜到懷疑人生">甜到懷疑人生</span>
+      <span class="chip" data-val="果汁噴出來">果汁噴出來</span>
+      <span class="chip" data-val="甜瘋了">甜瘋了</span>
+      <span class="chip" data-val="超級飽滿">超級飽滿</span>
+      <span class="chip" data-val="皮薄爆汁">皮薄爆汁</span>
+      <span class="chip" data-val="猛烈香氣">猛烈香氣</span>
+    </div>
+
+    <div class="cat-label">🌸 溫柔療癒</div>
+    <div class="chips">
+      <span class="chip" data-val="香甜幸福感">香甜幸福感</span>
+      <span class="chip" data-val="入口即化">入口即化</span>
+      <span class="chip" data-val="溫潤香甜">溫潤香甜</span>
+      <span class="chip" data-val="細緻果肉">細緻果肉</span>
+      <span class="chip" data-val="清甜不膩">清甜不膩</span>
+      <span class="chip" data-val="果香四溢">果香四溢</span>
+      <span class="chip" data-val="甜而回甘">甜而回甘</span>
+      <span class="chip" data-val="讓人心情好">讓人心情好</span>
+      <span class="chip" data-val="像在吃幸福">像在吃幸福</span>
+      <span class="chip" data-val="暖心好味道">暖心好味道</span>
+      <span class="chip" data-val="軟嫩好吃">軟嫩好吃</span>
+      <span class="chip" data-val="天然蜜甜">天然蜜甜</span>
+    </div>
+
+    <div class="cat-label">🛒 台式團購感</div>
+    <div class="chips">
+      <span class="chip" data-val="現貨搶購中">現貨搶購中</span>
+      <span class="chip" data-val="數量有限">數量有限</span>
+      <span class="chip" data-val="賣完不補">賣完不補</span>
+      <span class="chip" data-val="首批現到">首批現到</span>
+      <span class="chip" data-val="產地直送">產地直送</span>
+      <span class="chip" data-val="當季限定">當季限定</span>
+      <span class="chip" data-val="划算不踩雷">划算不踩雷</span>
+      <span class="chip" data-val="這批超划算">這批超划算</span>
+      <span class="chip" data-val="大人小孩都愛">大人小孩都愛</span>
+      <span class="chip" data-val="手腳慢搶不到">手腳慢搶不到</span>
+      <span class="chip" data-val="自吃送禮都體面">自吃送禮都體面</span>
+    </div>
+
+    <div class="cat-label">🍑 外觀 &amp; 口感</div>
+    <div class="chips">
+      <span class="chip" data-val="外皮漂亮">外皮漂亮</span>
+      <span class="chip" data-val="色澤鮮豔">色澤鮮豔</span>
+      <span class="chip" data-val="顆顆飽滿">顆顆飽滿</span>
+      <span class="chip" data-val="皮薄無籽">皮薄無籽</span>
+      <span class="chip" data-val="果粉完整">果粉完整</span>
+      <span class="chip" data-val="光澤飽滿">光澤飽滿</span>
+      <span class="chip" data-val="脆口清甜">脆口清甜</span>
+      <span class="chip" data-val="酸甜比例剛好">酸甜比例剛好</span>
+      <span class="chip" data-val="放軟即食">放軟即食</span>
+      <span class="chip" data-val="層次豐富">層次豐富</span>
+      <span class="chip" data-val="超級新鮮">超級新鮮</span>
+      <span class="chip" data-val="香氣十足">香氣十足</span>
+    </div>
+  </div>
+
+  <p class="tip">👆 點選產地＋賣點，再按產生</p>
+
+  <button class="btn-generate" onclick="generate()">🚀 產生文案</button>
+
+  <!-- 輸出 -->
+  <div class="card" id="output-card" style="margin-top:18px;">
+    <div class="card-title">📝 你的文案</div>
+    <textarea id="output-text" readonly></textarea>
+    <button class="btn-copy" id="copyBtn" onclick="copyText()">📋 複製文案</button>
+  </div>
+
+</div>
+
+<script>
+  // 單選產地
+  document.querySelectorAll('.country-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.country-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.toggle('active');
+    });
+  });
+
+  // 多選賣點
+  document.querySelectorAll('.chip:not(.country-chip)').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+
+  function getSelected(selector) {
+    return [...document.querySelectorAll(selector + '.active')].map(c => c.dataset.val);
+  }
+
+  function generate() {
+    const fruit  = document.getElementById('fruitName').value.trim();
+    const origin = getSelected('.country-chip')[0] || '';
+    const kws    = getSelected('.chip:not(.country-chip)');
+
+    if (!fruit) {
+      alert('請先輸入水果名稱！');
+      document.getElementById('fruitName').focus();
+      return;
+    }
+
+    // 分類關鍵字
+    const impact  = kws.filter(k => ['爆漿多汁','狂甜無比','超猛甜度','一口炸開','甜到懷疑人生','果汁噴出來','甜瘋了','超級飽滿','皮薄爆汁','猛烈香氣'].includes(k));
+    const gentle  = kws.filter(k => ['香甜幸福感','入口即化','溫潤香甜','細緻果肉','清甜不膩','果香四溢','甜而回甘','讓人心情好','像在吃幸福','暖心好味道','軟嫩好吃','天然蜜甜'].includes(k));
+    const buy     = kws.filter(k => ['現貨搶購中','數量有限','賣完不補','首批現到','產地直送','當季限定','划算不踩雷','這批超划算','大人小孩都愛','手腳慢搶不到','自吃送禮都體面'].includes(k));
+    const look    = kws.filter(k => ['外皮漂亮','色澤鮮豔','顆顆飽滿','皮薄無籽','果粉完整','光澤飽滿','脆口清甜','酸甜比例剛好','放軟即食','層次豐富','超級新鮮','香氣十足'].includes(k));
+
+    let lines = [];
+
+    // 標題行
+    const titleFruit = (origin ? origin + ' ' : '') + fruit;
+    lines.push(`🍎【${titleFruit}】`);
+    lines.push('');
+
+    // 外觀
+    if (look.length) lines.push(`✨ ${look.join('・')}`, '');
+
+    // 口感賣點
+    const allFlavor = [...impact, ...gentle];
+    if (allFlavor.length) lines.push(`😍 ${allFlavor.join('，')}`, '');
+
+    // 團購催購
+    if (buy.length) {
+      const urgency = buy.slice(0, 3);
+      lines.push(`🛒 ${urgency.join('！')}！`);
+      if (buy.length > 3) lines.push(`📦 ${buy.slice(3).join('・')}`);
+      lines.push('');
+    }
+
+    // 結尾
+    if (origin) {
+      lines.push(`📦 ${origin}直送・品質保證`);
+    }
+    lines.push(`💬 有興趣的朋友私訊或留言 +1 🙌`);
+
+    const text = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    document.getElementById('output-text').value = text;
+
+    const card = document.getElementById('output-card');
+    card.classList.add('show');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // reset copy btn
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '📋 複製文案';
+    btn.classList.remove('copied');
+  }
+
+  function copyText() {
+    const text = document.getElementById('output-text').value;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✅ 已複製！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 複製文案';
+        btn.classList.remove('copied');
+      }, 2500);
+    });
+  }
+</script>
+
+</body>
+</html>
