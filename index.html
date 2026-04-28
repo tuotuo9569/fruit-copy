@@ -52,7 +52,7 @@
     }
     label:first-of-type { margin-top: 0; }
 
-    input[type="text"], input[type="number"] {
+    input[type="text"] {
       width: 100%;
       padding: 10px 14px;
       border: 2px solid #ffd5be;
@@ -62,10 +62,50 @@
       transition: border-color 0.2s;
       font-family: inherit;
     }
-    input:focus { border-color: #FF6B35; }
+    input[type="text"]:focus { border-color: #FF6B35; }
 
     .row2 { display: flex; gap: 12px; }
     .row2 > div { flex: 1; }
+
+    /* toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .toggle-row span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+    }
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ddd;
+      border-radius: 24px;
+      transition: .3s;
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: .3s;
+    }
+    input:checked + .slider { background: #FF6B35; }
+    input:checked + .slider:before { transform: translateX(20px); }
+    #discount-section { display: none; }
+    #discount-section.show { display: block; }
 
     /* chips */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -80,17 +120,37 @@
       user-select: none;
     }
     .chip:hover { border-color: #FF6B35; color: #FF6B35; }
-    .chip.active { background: #FF6B35; color: white; border-color: #FF6B35; }
 
     .country-chip:hover  { border-color: #43A047; color: #43A047; }
     .country-chip.active { background: #43A047; border-color: #43A047; color: white; }
 
+    /* category colour chips */
+    .cat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+
+    .chip-taste  { border-color: #ef9a9a; color: #c62828; }
+    .chip-taste:hover, .chip-taste.active  { background: #e53935; border-color: #e53935; color: white; }
+
+    .chip-aroma  { border-color: #a5d6a7; color: #2e7d32; }
+    .chip-aroma:hover, .chip-aroma.active  { background: #43A047; border-color: #43A047; color: white; }
+
+    .chip-sweet  { border-color: #ffe082; color: #f57f17; }
+    .chip-sweet:hover, .chip-sweet.active  { background: #fb8c00; border-color: #fb8c00; color: white; }
+
+    .chip-fresh  { border-color: #80deea; color: #00838f; }
+    .chip-fresh:hover, .chip-fresh.active  { background: #00acc1; border-color: #00acc1; color: white; }
+
     .cat-label {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      color: #888;
-      margin: 14px 0 6px;
+      margin: 14px 0 7px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: inline-block;
     }
+    .cat-label.taste { background: #ffebee; color: #c62828; }
+    .cat-label.aroma { background: #e8f5e9; color: #2e7d32; }
+    .cat-label.sweet { background: #fff8e1; color: #f57f17; }
+    .cat-label.fresh { background: #e0f7fa; color: #00838f; }
 
     /* emoji picker */
     .emoji-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -108,7 +168,7 @@
     .emoji-btn.active { border-color: #FF6B35; background: #fff3ee; }
     .emoji-custom {
       flex: 1;
-      min-width: 80px;
+      min-width: 70px;
       padding: 8px 12px;
       border: 2px solid #ffd5be;
       border-radius: 10px;
@@ -122,7 +182,7 @@
     .trait-row { display: flex; gap: 8px; }
     .trait-row input { flex: 1; }
 
-    /* custom bullet inputs */
+    /* bullet list */
     #bullet-list { display: flex; flex-direction: column; gap: 8px; }
     .bullet-item { display: flex; gap: 8px; align-items: center; }
     .bullet-item input { flex: 1; }
@@ -174,12 +234,12 @@
     #output-card.show { display: block; }
     #output-text {
       width: 100%;
-      min-height: 220px;
+      min-height: 240px;
       padding: 14px;
       border: 2px solid #ffd5be;
       border-radius: 10px;
       font-size: 0.97rem;
-      line-height: 1.8;
+      line-height: 1.9;
       resize: vertical;
       outline: none;
       font-family: inherit;
@@ -208,6 +268,11 @@
       color: #aaa;
       margin-top: -10px;
       margin-bottom: 18px;
+    }
+    .divider {
+      border: none;
+      border-top: 1.5px dashed #ffe0cc;
+      margin: 14px 0;
     }
   </style>
 </head>
@@ -242,7 +307,7 @@
       <input class="emoji-custom" id="customEmoji" type="text" placeholder="其他…" maxlength="2" />
     </div>
 
-    <label>標題特色詞（最多 3 個，顯示在第一行）</label>
+    <label>標題特色詞（最多 3 個）</label>
     <div class="trait-row">
       <input id="trait1" type="text" placeholder="最新鮮" />
       <input id="trait2" type="text" placeholder="脆硬可口" />
@@ -253,7 +318,7 @@
   <!-- ② 產地 -->
   <div class="card">
     <div class="card-title">🌍 產地</div>
-    <div class="chips" id="originChips">
+    <div class="chips">
       <span class="chip country-chip" data-val="🇺🇸" data-name="美國">🇺🇸 美國</span>
       <span class="chip country-chip" data-val="🇨🇱" data-name="智利">🇨🇱 智利</span>
       <span class="chip country-chip" data-val="🇰🇷" data-name="韓國">🇰🇷 韓國</span>
@@ -270,49 +335,106 @@
   <!-- ③ 規格價格 -->
   <div class="card">
     <div class="card-title">💰 規格 &amp; 價格</div>
-    <label>規格（每盒重量）</label>
-    <input id="spec" type="text" placeholder="例：125g、500g…" />
-    <div class="row2" style="margin-top:12px;">
+    <div class="row2">
       <div>
-        <label>單盒價格（元）</label>
-        <input id="price1" type="number" placeholder="80" />
+        <label>規格</label>
+        <input id="spec" type="text" placeholder="125g" />
       </div>
       <div>
-        <label>優惠幾盒</label>
-        <input id="priceQty" type="number" placeholder="2" value="2" />
+        <label>單盒價格</label>
+        <input id="price1" type="text" placeholder="80" />
       </div>
-      <div>
-        <label>優惠價格（元）</label>
-        <input id="price2" type="number" placeholder="150" />
+    </div>
+
+    <hr class="divider" style="margin-top:16px;" />
+
+    <div class="toggle-row">
+      <label class="switch" style="margin:0;">
+        <input type="checkbox" id="discountToggle" onchange="toggleDiscount()" />
+        <span class="slider"></span>
+      </label>
+      <span>有優惠價格</span>
+    </div>
+
+    <div id="discount-section">
+      <div class="row2">
+        <div>
+          <label>優惠幾盒</label>
+          <input id="priceQty" type="text" placeholder="2" />
+        </div>
+        <div>
+          <label>優惠價格</label>
+          <input id="price2" type="text" placeholder="150" />
+        </div>
       </div>
     </div>
   </div>
 
   <!-- ④ 賣點 -->
   <div class="card">
-    <div class="card-title">✨ 賣點列表</div>
+    <div class="card-title">✨ 賣點快選（點擊加入列表）</div>
 
-    <div class="cat-label">快選常用賣點（點擊新增）</div>
-    <div class="chips">
-      <span class="chip quick-chip" data-val="超級新鮮">超級新鮮</span>
-      <span class="chip quick-chip" data-val="顆顆扎實飽滿">顆顆扎實飽滿</span>
-      <span class="chip quick-chip" data-val="甜而帶點微酸 層次感超好吃">甜而帶點微酸 層次感超好吃</span>
-      <span class="chip quick-chip" data-val="外皮漂亮 果粉完整保留">外皮漂亮 果粉完整保留</span>
-      <span class="chip quick-chip" data-val="現貨搶購中 數量有限賣完不補">現貨搶購中 數量有限賣完不補</span>
-      <span class="chip quick-chip" data-val="產地直送 最新鮮">產地直送 最新鮮</span>
-      <span class="chip quick-chip" data-val="大人小孩都喜歡 超級好吃唷">大人小孩都喜歡 超級好吃唷</span>
-      <span class="chip quick-chip" data-val="爆漿多汁">爆漿多汁</span>
-      <span class="chip quick-chip" data-val="入口即化">入口即化</span>
-      <span class="chip quick-chip" data-val="皮薄無籽">皮薄無籽</span>
-      <span class="chip quick-chip" data-val="當季限定">當季限定</span>
-      <span class="chip quick-chip" data-val="這批超划算">這批超划算</span>
-      <span class="chip quick-chip" data-val="自吃送禮都體面">自吃送禮都體面</span>
-      <span class="chip quick-chip" data-val="手腳慢搶不到">手腳慢搶不到</span>
+    <div class="cat-label taste">🍴 口感</div>
+    <div class="cat-chips">
+      <span class="chip chip-taste" data-val="脆口清甜">脆口清甜</span>
+      <span class="chip chip-taste" data-val="入口即化">入口即化</span>
+      <span class="chip chip-taste" data-val="皮薄爆汁">皮薄爆汁</span>
+      <span class="chip chip-taste" data-val="細緻果肉">細緻果肉</span>
+      <span class="chip chip-taste" data-val="軟嫩好吃">軟嫩好吃</span>
+      <span class="chip chip-taste" data-val="酸甜比例剛好">酸甜比例剛好</span>
+      <span class="chip chip-taste" data-val="層次豐富">層次豐富</span>
+      <span class="chip chip-taste" data-val="顆顆扎實飽滿">顆顆扎實飽滿</span>
+      <span class="chip chip-taste" data-val="脆硬可口">脆硬可口</span>
+      <span class="chip chip-taste" data-val="多汁飽滿">多汁飽滿</span>
     </div>
 
-    <div class="cat-label" style="margin-top:16px;">目前賣點列表（可拖曳排序、點 × 刪除）</div>
+    <div class="cat-label aroma">🌸 香氣</div>
+    <div class="cat-chips">
+      <span class="chip chip-aroma" data-val="果香四溢">果香四溢</span>
+      <span class="chip chip-aroma" data-val="香氣十足">香氣十足</span>
+      <span class="chip chip-aroma" data-val="天然果香">天然果香</span>
+      <span class="chip chip-aroma" data-val="香甜撲鼻">香甜撲鼻</span>
+      <span class="chip chip-aroma" data-val="清新果味">清新果味</span>
+      <span class="chip chip-aroma" data-val="濃郁香氣">濃郁香氣</span>
+      <span class="chip chip-aroma" data-val="芳香四溢">芳香四溢</span>
+      <span class="chip chip-aroma" data-val="香而不膩">香而不膩</span>
+      <span class="chip chip-aroma" data-val="淡雅清香">淡雅清香</span>
+      <span class="chip chip-aroma" data-val="猛烈果香">猛烈果香</span>
+    </div>
+
+    <div class="cat-label sweet">🍯 甜度</div>
+    <div class="cat-chips">
+      <span class="chip chip-sweet" data-val="狂甜無比">狂甜無比</span>
+      <span class="chip chip-sweet" data-val="甜到懷疑人生">甜到懷疑人生</span>
+      <span class="chip chip-sweet" data-val="甜瘋了">甜瘋了</span>
+      <span class="chip chip-sweet" data-val="天然蜜甜">天然蜜甜</span>
+      <span class="chip chip-sweet" data-val="甜而回甘">甜而回甘</span>
+      <span class="chip chip-sweet" data-val="清甜不膩">清甜不膩</span>
+      <span class="chip chip-sweet" data-val="甜而帶點微酸 層次感超好吃">甜帶微酸 層次感十足</span>
+      <span class="chip chip-sweet" data-val="蜜糖般香甜">蜜糖般香甜</span>
+      <span class="chip chip-sweet" data-val="甜度爆表">甜度爆表</span>
+      <span class="chip chip-sweet" data-val="自然甜味不膩口">自然甜味不膩口</span>
+    </div>
+
+    <div class="cat-label fresh">❄️ 新鮮</div>
+    <div class="cat-chips">
+      <span class="chip chip-fresh" data-val="超級新鮮">超級新鮮</span>
+      <span class="chip chip-fresh" data-val="當季限定">當季限定</span>
+      <span class="chip chip-fresh" data-val="產地直送">產地直送</span>
+      <span class="chip chip-fresh" data-val="首批現到">首批現到</span>
+      <span class="chip chip-fresh" data-val="新鮮直送不等待">新鮮直送不等待</span>
+      <span class="chip chip-fresh" data-val="現採現送">現採現送</span>
+      <span class="chip chip-fresh" data-val="今日新鮮到貨">今日新鮮到貨</span>
+      <span class="chip chip-fresh" data-val="目前市場上最新鮮直送產地">市場上最新鮮直送</span>
+      <span class="chip chip-fresh" data-val="現貨搶購中 數量有限賣完不補">現貨搶購 數量有限</span>
+      <span class="chip chip-fresh" data-val="大人小孩都喜歡 超級好吃唷">大人小孩都喜歡</span>
+    </div>
+
+    <hr class="divider" />
+
+    <div style="font-size:0.82rem;font-weight:700;color:#666;margin-bottom:8px;">📋 已加入的賣點（點 × 刪除）</div>
     <div id="bullet-list"></div>
-    <button class="btn-add-bullet" onclick="addBullet('')">＋ 手動新增賣點</button>
+    <button class="btn-add-bullet" onclick="addBullet('')">＋ 手動新增</button>
   </div>
 
   <p class="tip">填完所有欄位後按產生 👇</p>
@@ -343,7 +465,7 @@
     document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
   });
 
-  // ── 產地 single select ──
+  // ── 產地 ──
   document.querySelectorAll('.country-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('.country-chip').forEach(c => c.classList.remove('active'));
@@ -351,16 +473,19 @@
     });
   });
 
+  // ── 優惠 toggle ──
+  function toggleDiscount() {
+    const on = document.getElementById('discountToggle').checked;
+    document.getElementById('discount-section').classList.toggle('show', on);
+  }
+
   // ── 快選賣點 ──
-  document.querySelectorAll('.quick-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      addBullet(chip.dataset.val);
-    });
+  document.querySelectorAll('.chip-taste, .chip-aroma, .chip-sweet, .chip-fresh').forEach(chip => {
+    chip.addEventListener('click', () => addBullet(chip.dataset.val));
   });
 
   // ── bullet list ──
   let bulletCount = 0;
-
   function addBullet(text) {
     const id = 'b' + (bulletCount++);
     const div = document.createElement('div');
@@ -368,12 +493,11 @@
     div.id = id;
     div.innerHTML = `
       <span style="color:#FF6B35;font-size:1.1rem;flex-shrink:0;">．</span>
-      <input type="text" value="${text.replace(/"/g, '&quot;')}" placeholder="輸入賣點…" />
+      <input type="text" value="${text.replace(/"/g,'&quot;')}" placeholder="輸入賣點…" />
       <button class="btn-remove" onclick="removeBullet('${id}')">×</button>
     `;
     document.getElementById('bullet-list').appendChild(div);
   }
-
   function removeBullet(id) {
     const el = document.getElementById(id);
     if (el) el.remove();
@@ -381,15 +505,16 @@
 
   // ── generate ──
   function generate() {
-    const fruit   = document.getElementById('fruitName').value.trim();
-    const emoji   = selectedEmoji || document.getElementById('customEmoji').value.trim() || '🍎';
-    const trait1  = document.getElementById('trait1').value.trim();
-    const trait2  = document.getElementById('trait2').value.trim();
-    const trait3  = document.getElementById('trait3').value.trim();
-    const spec    = document.getElementById('spec').value.trim();
-    const price1  = document.getElementById('price1').value.trim();
-    const priceQty= document.getElementById('priceQty').value.trim() || '2';
-    const price2  = document.getElementById('price2').value.trim();
+    const fruit    = document.getElementById('fruitName').value.trim();
+    const emoji    = selectedEmoji || document.getElementById('customEmoji').value.trim() || '🍎';
+    const trait1   = document.getElementById('trait1').value.trim();
+    const trait2   = document.getElementById('trait2').value.trim();
+    const trait3   = document.getElementById('trait3').value.trim();
+    const spec     = document.getElementById('spec').value.trim();
+    const price1   = document.getElementById('price1').value.trim();
+    const hasDiscount = document.getElementById('discountToggle').checked;
+    const priceQty = document.getElementById('priceQty')?.value.trim() || '2';
+    const price2   = document.getElementById('price2')?.value.trim() || '';
 
     const activeCountry = document.querySelector('.country-chip.active');
     const flag    = activeCountry ? activeCountry.dataset.val : '';
@@ -397,38 +522,52 @@
 
     if (!fruit) { alert('請輸入水果名稱！'); return; }
 
-    // 標題行
+    // ── 標題行 ──
     const traits = [trait1, trait2, trait3].filter(Boolean).join('  ');
-    const titleLine = [
-      flag ? flag + country + '來台' : '',
-      traits,
-      fruit + ' ' + emoji
-    ].filter(Boolean).join('  ');
+    const titleParts = [];
+    if (flag) titleParts.push(`${flag}${country}來台`);
+    if (traits) titleParts.push(traits);
+    titleParts.push(`${fruit} ${emoji}`);
+    const titleLine = titleParts.join('  ');
 
-    // 價格行
+    // ── 價格行 ──
     let priceLine = '';
     if (price1 || price2) {
-      const parts = [];
-      if (price1 && spec) parts.push(`${emoji}1盒 ${spec}  ${price1}元`);
-      else if (price1)    parts.push(`${emoji}1盒  ${price1}元`);
-      if (price2 && priceQty) parts.push(`${priceQty}盒 ${price2}元${emoji}`);
-      priceLine = parts.join(' / ');
+      let p = `${emoji}`;
+      if (spec)   p += `1盒 ${spec}  `;
+      else        p += `1盒  `;
+      if (price1) p += `${price1}`;
+      if (hasDiscount && price2 && priceQty) {
+        p += ` / ${priceQty}盒 ${price2}元`;
+      } else if (price1) {
+        p += `元`;
+      }
+      p += `${emoji}`;
+      priceLine = p;
     }
 
-    // 賣點
-    const bullets = [...document.querySelectorAll('#bullet-list input')]
+    // ── 賣點 ──
+    const bulletItems = [...document.querySelectorAll('#bullet-list input')]
       .map(i => i.value.trim())
-      .filter(Boolean)
-      .map(t => `．${t}`)
-      .join('\n');
+      .filter(Boolean);
 
-    // 組合
+    // ── 美化組合 ──
     const lines = [];
+
     lines.push(titleLine);
-    if (priceLine) { lines.push(''); lines.push(priceLine); }
-    if (bullets)   { lines.push(''); lines.push(bullets); }
+
+    if (priceLine) {
+      lines.push('');
+      lines.push(priceLine);
+    }
+
+    if (bulletItems.length) {
+      lines.push('');
+      bulletItems.forEach(b => lines.push(`．${b}`));
+    }
 
     document.getElementById('output-text').value = lines.join('\n');
+
     const card = document.getElementById('output-card');
     card.classList.add('show');
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
