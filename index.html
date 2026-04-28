@@ -698,7 +698,7 @@
 
     if (bulletItems.length) {
       lines.push('');
-      bulletItems.forEach(b => lines.push(`．${b}`));
+      bulletItems.forEach(b => lines.push(b));
     }
 
     document.getElementById('output-text').value = lines.join('\n');
