@@ -121,9 +121,6 @@
     }
     .chip:hover { border-color: #FF6B35; color: #FF6B35; }
 
-    .country-chip:hover  { border-color: #43A047; color: #43A047; }
-    .country-chip.active { background: #43A047; border-color: #43A047; color: white; }
-
     /* category colour chips */
     .cat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
 
@@ -151,32 +148,6 @@
     .cat-label.aroma { background: #e8f5e9; color: #2e7d32; }
     .cat-label.sweet { background: #fff8e1; color: #f57f17; }
     .cat-label.fresh { background: #e0f7fa; color: #00838f; }
-
-    /* emoji picker */
-    .emoji-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .emoji-btn {
-      font-size: 1.4rem;
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      border: 2px solid #e0e0e0;
-      background: #f9f9f9;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .emoji-btn:hover  { border-color: #FF6B35; }
-    .emoji-btn.active { border-color: #FF6B35; background: #fff3ee; }
-    .emoji-custom {
-      flex: 1;
-      min-width: 70px;
-      padding: 8px 12px;
-      border: 2px solid #ffd5be;
-      border-radius: 10px;
-      font-size: 1.1rem;
-      outline: none;
-      font-family: inherit;
-    }
-    .emoji-custom:focus { border-color: #FF6B35; }
 
     /* 特色詞 */
     .trait-row { display: flex; gap: 8px; }
@@ -292,43 +263,11 @@
     <label>水果名稱</label>
     <input id="fruitName" type="text" placeholder="例：藍莓、草莓、葡萄…" />
 
-    <label>水果 Emoji</label>
-    <div class="emoji-row">
-      <button class="emoji-btn" data-emoji="🫐">🫐</button>
-      <button class="emoji-btn" data-emoji="🍓">🍓</button>
-      <button class="emoji-btn" data-emoji="🍇">🍇</button>
-      <button class="emoji-btn" data-emoji="🍊">🍊</button>
-      <button class="emoji-btn" data-emoji="🍋">🍋</button>
-      <button class="emoji-btn" data-emoji="🍎">🍎</button>
-      <button class="emoji-btn" data-emoji="🍑">🍑</button>
-      <button class="emoji-btn" data-emoji="🥭">🥭</button>
-      <button class="emoji-btn" data-emoji="🍍">🍍</button>
-      <button class="emoji-btn" data-emoji="🍈">🍈</button>
-      <input class="emoji-custom" id="customEmoji" type="text" placeholder="其他…" maxlength="2" />
-    </div>
-
     <label>標題特色詞（最多 3 個）</label>
     <div class="trait-row">
       <input id="trait1" type="text" placeholder="最新鮮" />
       <input id="trait2" type="text" placeholder="脆硬可口" />
       <input id="trait3" type="text" placeholder="酸酸甜甜" />
-    </div>
-  </div>
-
-  <!-- ② 產地 -->
-  <div class="card">
-    <div class="card-title">🌍 產地</div>
-    <div class="chips">
-      <span class="chip country-chip" data-val="🇺🇸" data-name="美國">🇺🇸 美國</span>
-      <span class="chip country-chip" data-val="🇨🇱" data-name="智利">🇨🇱 智利</span>
-      <span class="chip country-chip" data-val="🇰🇷" data-name="韓國">🇰🇷 韓國</span>
-      <span class="chip country-chip" data-val="🇯🇵" data-name="日本">🇯🇵 日本</span>
-      <span class="chip country-chip" data-val="🇳🇿" data-name="紐西蘭">🇳🇿 紐西蘭</span>
-      <span class="chip country-chip" data-val="🇦🇺" data-name="澳洲">🇦🇺 澳洲</span>
-      <span class="chip country-chip" data-val="🇹🇼" data-name="台灣">🇹🇼 台灣</span>
-      <span class="chip country-chip" data-val="🇲🇾" data-name="馬來西亞">🇲🇾 馬來西亞</span>
-      <span class="chip country-chip" data-val="🇿🇦" data-name="南非">🇿🇦 南非</span>
-      <span class="chip country-chip" data-val="🇵🇪" data-name="秘魯">🇵🇪 秘魯</span>
     </div>
   </div>
 
@@ -490,29 +429,6 @@
 </div>
 
 <script>
-  // ── emoji picker ──
-  let selectedEmoji = '';
-  document.querySelectorAll('.emoji-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selectedEmoji = btn.dataset.emoji;
-      document.getElementById('customEmoji').value = '';
-    });
-  });
-  document.getElementById('customEmoji').addEventListener('input', e => {
-    selectedEmoji = e.target.value.trim();
-    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
-  });
-
-  // ── 產地 ──
-  document.querySelectorAll('.country-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.country-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.toggle('active');
-    });
-  });
-
   // ── 優惠 toggle ──
   function toggleDiscount() {
     const on = document.getElementById('discountToggle').checked;
@@ -642,7 +558,6 @@
   // ── generate ──
   function generate() {
     const fruit    = document.getElementById('fruitName').value.trim();
-    const emoji    = selectedEmoji || document.getElementById('customEmoji').value.trim() || '🍎';
     const trait1   = document.getElementById('trait1').value.trim();
     const trait2   = document.getElementById('trait2').value.trim();
     const trait3   = document.getElementById('trait3').value.trim();
@@ -652,24 +567,19 @@
     const priceQty = document.getElementById('priceQty')?.value.trim() || '2';
     const price2   = document.getElementById('price2')?.value.trim() || '';
 
-    const activeCountry = document.querySelector('.country-chip.active');
-    const flag    = activeCountry ? activeCountry.dataset.val : '';
-    const country = activeCountry ? activeCountry.dataset.name : '';
-
     if (!fruit) { alert('請輸入水果名稱！'); return; }
 
     // ── 標題行 ──
     const traits = [trait1, trait2, trait3].filter(Boolean).join('  ');
     const titleParts = [];
-    if (flag) titleParts.push(`${flag}${country}來台`);
     if (traits) titleParts.push(traits);
-    titleParts.push(`${fruit} ${emoji}`);
+    titleParts.push(fruit);
     const titleLine = titleParts.join('  ');
 
     // ── 價格行 ──
     let priceLine = '';
     if (price1 || price2) {
-      let p = `${emoji}`;
+      let p = '';
       if (spec)   p += `${spec}  `;
       if (price1) p += `${price1}`;
       if (hasDiscount && price2 && priceQty) {
@@ -677,7 +587,6 @@
       } else if (price1) {
         p += `元`;
       }
-      p += `${emoji}`;
       priceLine = p;
     }
 
