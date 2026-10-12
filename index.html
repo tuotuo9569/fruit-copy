@@ -163,9 +163,16 @@
     .cat-label.sweet { background: #fff8e1; color: #f57f17; }
     .cat-label.fresh { background: #e0f7fa; color: #00838f; }
 
-    /* 特色詞 */
-    .trait-row { display: flex; gap: 8px; }
-    .trait-row input { flex: 1; }
+    /* 特色詞：窄螢幕會自動換行，不會把三格擠扁 */
+    .trait-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .trait-row input { flex: 1 1 30%; min-width: 96px; }
+
+    .field-hint {
+      font-size: 0.78rem;
+      color: #999;
+      margin: -2px 0 12px;
+      line-height: 1.5;
+    }
 
     /* bullet list */
     #bullet-list { display: flex; flex-direction: column; gap: 8px; }
@@ -274,14 +281,28 @@
   <div class="card">
     <div class="card-title">🍑 基本資料</div>
 
-    <label>水果名稱</label>
-    <input id="fruitName" type="text" placeholder="例：藍莓、草莓、葡萄…" />
+    <p class="field-hint">標題會依下列順序排：國家 → 產地 → 形容詞 → 品名</p>
 
-    <label>標題特色詞（最多 2 個）</label>
-    <div class="trait-row">
-      <input id="trait1" type="text" placeholder="最新鮮" />
-      <input id="trait2" type="text" placeholder="脆硬可口" />
+    <div class="row2">
+      <div>
+        <label>國家</label>
+        <input id="country" type="text" placeholder="台灣、美國、日本…" />
+      </div>
+      <div>
+        <label>產地</label>
+        <input id="origin" type="text" placeholder="台南現採、產地直送…" />
+      </div>
     </div>
+
+    <label>形容詞（最多 3 個）</label>
+    <div class="trait-row">
+      <input id="trait1" type="text" placeholder="酸甜可口" />
+      <input id="trait2" type="text" placeholder="營養均衡" />
+      <input id="trait3" type="text" placeholder="酸酸甜甜" />
+    </div>
+
+    <label>水果品名</label>
+    <input id="fruitName" type="text" placeholder="例：橘子、葡萄、蟠桃…" />
   </div>
 
   <!-- ③ 規格價格 -->
@@ -576,8 +597,11 @@
   // ── generate ──
   function generate() {
     const fruit    = document.getElementById('fruitName').value.trim();
+    const country  = document.getElementById('country').value.trim();
+    const origin   = document.getElementById('origin').value.trim();
     const trait1   = document.getElementById('trait1').value.trim();
     const trait2   = document.getElementById('trait2').value.trim();
+    const trait3   = document.getElementById('trait3').value.trim();
     const spec     = document.getElementById('spec').value.trim();
     const price1   = document.getElementById('price1').value.trim();
     const hasDiscount = document.getElementById('discountToggle').checked;
@@ -586,12 +610,10 @@
 
     if (!fruit) { alert('請輸入水果名稱！'); return; }
 
-    // ── 標題行 ──
-    const traits = [trait1, trait2].filter(Boolean).join('  ');
-    const titleParts = [];
-    if (traits) titleParts.push(traits);
-    titleParts.push(fruit);
-    const titleLine = titleParts.join('  ');
+    // ── 標題行：國家 → 產地 → 形容詞 → 品名，空白欄位自動略過 ──
+    const titleLine = [country, origin, trait1, trait2, trait3, fruit]
+      .filter(Boolean)
+      .join('  ');
 
     // ── 價格行：[單位數量] [價格]元 ／ [優惠單位] [優惠價]元 ──
     let priceLine = '';
